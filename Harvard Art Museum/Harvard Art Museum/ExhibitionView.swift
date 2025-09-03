@@ -36,11 +36,11 @@ struct ExhibitionView: View {
                                     .bold()
                                 Spacer()
                                 Text("\(formatDate(dateString: exhibition.begindate)) - \(formatDate(dateString: exhibition.enddate))")
-                                    .foregroundStyle(.grey)
+                                    .foregroundStyle(.gray)
                                     .bold()
                             }
                             Text(exhibition.exhibitionDescription ?? "")
-                                .foregroundStyle(.grey)
+                                .foregroundStyle(.gray)
                                 .lineLimit(3)
                         }
                     }
@@ -53,6 +53,9 @@ struct ExhibitionView: View {
             if vm == nil {
                 vm = ArtViewModel(service: ArtService(), context: modelContext)
                 await vm?.getAllExhibitions()
+                for exhibition in vm?.allExhibitions ?? [] {
+                    await vm?.getAllObjects(exhibitionID: exhibition.id)
+                }
                 try? modelContext.save()
             }
         }
@@ -72,4 +75,5 @@ struct ExhibitionView: View {
 
 #Preview {
     ExhibitionView()
+        .modelContainer(for: [Exhibition.self, Object.self], inMemory: true)
 }

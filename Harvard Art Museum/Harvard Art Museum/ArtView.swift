@@ -12,7 +12,10 @@ struct ArtView: View {
     let exhibition: Exhibition
     @Environment(\.modelContext) private var modelContext
     @State private var vm: ArtViewModel? = nil
-    @Query private var objects: [Object]
+    @Query private var allObjects: [Object]
+    private var objects: [Object] {
+        allObjects.filter { $0.exhibitionID == exhibition.id }
+    }
     
     var body: some View {
         NavigationStack {
@@ -27,24 +30,39 @@ struct ArtView: View {
                     ForEach(objects, id: \.id) { object in
                         NavigationLink(destination: ObjectView(object: object)) {
                             HStack() {
-                                if let urlString = object.primaryimageurl,
-                                   let url = URL(string: urlString) {
-                                    AsyncImage(url: url) { image in
-                                        image.resizable().cornerRadius(10)
-                                    } placeholder: {
-                                        ProgressView()
+                                ZStack(alignment: .topTrailing) {
+                                    if let urlString = object.primaryimageurl,
+                                       let url = URL(string: urlString) {
+                                        AsyncImage(url: url) { image in
+                                            image.resizable().cornerRadius(10)
+                                        } placeholder: {
+                                            ProgressView()
+                                        }
+                                        .frame(width: 100, height: 100)
                                     }
-                                    .frame(width: 100, height: 100)
+                                    Button(action: {
+                                        object.isFavorited.toggle()
+                                        try? modelContext.save()
+                                    }) {
+                                        Image(systemName: object.isFavorited ? "heart.fill" : "heart")
+                                            .font(.caption)
+                                            .padding(5)
+                                            .background(Color.white)
+                                            .foregroundColor(.red)
+                                            .clipShape(Circle())
+                                    }
+                                    .offset(x: -10, y: 10)
                                 }
                                 VStack(alignment: .leading) {
                                     Text(object.title)
+                                        .foregroundStyle(.black)
                                         .font(.title3)
                                         .bold()
                                     Text("\(object.people?.first?.name ?? "Unknown"), \(object.datebegin)")
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(.gray)
                                     Text(object.objectDescription ?? "")
                                         .lineLimit(4)
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(.gray)
                                 }
                             }
                         }

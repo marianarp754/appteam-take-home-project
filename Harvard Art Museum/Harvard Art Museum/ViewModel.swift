@@ -40,12 +40,14 @@ class ArtViewModel: ObservableObject {
     
     func getAllObjects(exhibitionID: Int) async {
         do {
-            allObjects = try await service.getObjects(exhibitionID: exhibitionID)
+            let newObjects = try await service.getObjects(exhibitionID: exhibitionID)
+            allObjects.append(contentsOf: newObjects)
             if let exhibitionIndex = allExhibitions.firstIndex(where: { $0.id == exhibitionID }) {
-                allExhibitions[exhibitionIndex].objects = allObjects
+                allExhibitions[exhibitionIndex].objects = newObjects
             }
             let existingObjects = try context.fetch(FetchDescriptor<Object>())
-            for object in allObjects {
+            for object in newObjects {
+                object.exhibitionID = exhibitionID   // ✅ ensure the object is tied to the exhibition
                 if !existingObjects.contains(where: { $0.id == object.id }) {
                     context.insert(object)
                 }

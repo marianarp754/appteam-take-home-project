@@ -67,4 +67,5 @@ struct ObjectView: View {
         dimensions: "4x4",
     )
     ObjectView(object: mockObject)
+        .modelContainer(for: [Exhibition.self, Object.self], inMemory: true)
 }
