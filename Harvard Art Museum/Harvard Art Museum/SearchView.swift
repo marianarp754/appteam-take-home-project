@@ -16,12 +16,12 @@ struct SearchView: View {
     
     private var filteredExhibitions: [Exhibition] {
         if searchText.isEmpty { return [] }
-        return exhibitions.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+        return exhibitions.filter { $0.title.contains(searchText) }
     }
     
     private var filteredObjects: [Object] {
         if searchText.isEmpty { return [] }
-        return objects.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+        return objects.filter { $0.title.contains(searchText) }
     }
     
     var body: some View {
